@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Appointment Booking System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 40px;
+        }
+        form {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="datetime-local"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"], button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover, button:hover {
+            background-color: #218838;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Healthcare Appointment Booking System</h1>
+    <h2>Book an Appointment</h2>
+    <form id="bookingForm">
+        <label for="patient_name">Patient Name:</label>
+        <input type="text" id="patient_name" name="patient_name" required>
+        <label for="doctor_name">Doctor Name:</label>
+        <input type="text" id="doctor_name" name="doctor_name" required>
+        <label for="appointment_time">Appointment Time:</label>
+        <input type="datetime-local" id="appointment_time" name="appointment_time" required>
+        <input type="submit" value="Book Appointment">
+    </form>
+
+    <h2>Appointments</h2>
+    <ul id="appointmentsList"></ul>
+
+    <h2>Doctor's View</h2>
+    <form id="doctorViewForm">
+        <label for="view_doctor_name">Doctor Name:</label>
+        <input type="text" id="view_doctor_name" name="view_doctor_name" required>
+        <input type="submit" value="View Appointments">
+    </form>
+    <ul id="doctorAppointmentsList"></ul>
+
+    <script>
+        const bookingForm = document.getElementById('bookingForm');
+        const appointmentsList = document.getElementById('appointmentsList');
+        const doctorViewForm = document.getElementById('doctorViewForm');
+        const doctorAppointmentsList = document.getElementById('doctorAppointmentsList');
+
+        let appointments = [];
+
+        bookingForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const patientName = document.getElementById('patient_name').value;
+            const doctorName = document.getElementById('doctor_name').value;
+            const appointmentTime = document.getElementById('appointment_time').value;
+
+            const appointment = {
+                patientName,
+                doctorName,
+                appointmentTime
+            };
+
+            appointments.push(appointment);
+            displayAppointments();
+            bookingForm.reset();
+        });
+
+        doctorViewForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const viewDoctorName = document.getElementById('view_doctor_name').value;
+            displayDoctorAppointments(viewDoctorName);
+        });
+
+        function displayAppointments() {
+            appointmentsList.innerHTML = '';
+            appointments.forEach((appointment, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    Patient: ${appointment.patientName}, Doctor: ${appointment.doctorName}, Time: ${appointment.appointmentTime}
+                    <button class="delete-btn" onclick="deleteAppointment(${index})">Delete</button>
+                `;
+                appointmentsList.appendChild(li);
+            });
+        }
+
+        function displayDoctorAppointments(doctorName) {
+            doctorAppointmentsList.innerHTML = '';
+            const doctorAppointments = appointments.filter(appointment => appointment.doctorName === doctorName);
+            doctorAppointments.forEach((appointment, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    Patient: ${appointment.patientName}, Time: ${appointment.appointmentTime}
+                    <button class="delete-btn" onclick="deleteDoctorAppointment('${doctorName}', ${index})">Delete</button>
+                `;
+                doctorAppointmentsList.appendChild(li);
+            });
+        }
+
+        function deleteAppointment(index) {
+            appointments.splice(index, 1);
+            displayAppointments();
+        }
+
+        function deleteDoctorAppointment(doctorName, index) {
+            const doctorAppointments = appointments.filter(appointment => appointment.doctorName === doctorName);
+            const appointmentIndex = appointments.indexOf(doctorAppointments[index]);
+            appointments.splice(appointmentIndex, 1);
+            displayDoctorAppointments(doctorName);
+            displayAppointments();
+        }
+    </script>
+</body>
+</html>
